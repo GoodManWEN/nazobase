@@ -1,7 +1,7 @@
 try:
     from mvsfunc import Depth,ToYUV,ToRGB 
 except:
-    raise Error('mvsfunc is required for this script.')
+    raise ImportError('mvsfunc is required for this script.')
 
 import vapoursynth as vs
 from os import path
@@ -13,31 +13,59 @@ import nazobase as nazo
 ######################################################
 #
 #           nazobase distribution
-#           version 0.1.13
+#           version 0.1.15
 #
 ######################################################
 
-def _ensuretype(*type_args, **type_kwargs):
-    def decorator(func):
-        sig = signature(func)
-        bound_types = sig.bind_partial(*type_args, **type_kwargs).arguments
+def autocheck(func):
+    '''
 
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            bound_values = sig.bind(*args, **kwargs)
-            for name, value in bound_values.arguments.items():
-                if name in bound_types:
-                    if not isinstance(value, bound_types[name]):
-                        raise TypeError(f'Argument {name} must be {bound_types[name]}')
-            return func(*args, **kwargs)
-        return wrapper
-    return decorator
+    Datatype auto check ,supports types and values.
+    Checkout PEP484 for more information.
+
+    '''
+    trace = signature(func)
+    reference = func.__annotations__
+
+    def not_instance(value ,target ,name ,reponame):
+        if not isinstance(target[name],(tuple,dict)):
+            values , types_ = (), target[name]
+        else:
+            values = tuple(filter(lambda x:False if isinstance(x,type) else True ,target[name] ))
+            types_ = tuple( set(target[name]) - set(values) )
+        if value in values or isinstance(value, types_):
+            return ;
+        raise TypeError(f'Argument "{reponame}" must be {target[name]}')
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        '''
+
+        Simple is better than complex ,
+        Complex is better than complicated.
+
+        '''
+        for name,value in trace.bind(*args, **kwargs).arguments.items():
+            if name in reference:
+                if isinstance(value ,tuple):
+                    for value_value in value:
+                        not_instance(value_value, reference, name, name)
+                elif isinstance(value ,dict):
+                    for name_name, value_value in value.items():
+                        not_instance(value_value, reference, name, name_name)
+                else:
+                    not_instance(value, reference, name, name)      
+        ret = func(*args, **kwargs)
+        if 'return' not in reference or isinstance(ret,reference['return']):
+            return ret
+        raise TypeError(f'Return type of {func.__name__} must be {reference["return"]}')
+    return wrapper
 
 
 
-# @_ensuretype(source = str,first = int,last = int)
+# @autocheck
 # decorator affacts inspect debuging process should not be used
-def dataloader(source, first = None, last = None):
+def dataloader(source:str, first:(None,int) = None, last:(None,int) = None) -> vs.VideoNode:
 
     '''
     
@@ -123,9 +151,9 @@ def dataloader(source, first = None, last = None):
 
 
 
-# @_ensuretype(str,int,int)
+# @autocheck
 # decorator affacts inspect debuging process should not be used
-def check(clipa, *clipbs):
+def check(clipa:vs.VideoNode, *clipbs:vs.VideoNode) -> vs.VideoNode:
 
     '''
     Automatically adjust format/bit depth/FPS of clip those in clips to clipa,
@@ -206,7 +234,7 @@ def check(clipa, *clipbs):
         try:
             return ToYUV(clip,css=search('(420|422|444)',clipa.format.name).group(),full=False,depth=clip.format.bits_per_sample)
         except:
-            raise Error('Only YUV420/422/444 is supported')
+            raise TypeError('Only YUV420/422/444 is supported')
 
     options = { vs.YUV:operate_YUV,
                 vs.RGB:lambda clip: ToRGB(clip,full=False,depth=clip.format.bits_per_sample),
@@ -217,7 +245,7 @@ def check(clipa, *clipbs):
         
         tmp_color_family = clip.format.color_family
         if target_color_family not in options or tmp_color_family not in options:
-            raise Error('This script can only handle format with YUV/RGB/GRAY')
+            raise TypeError('This script can only handle format with YUV/RGB/GRAY')
         
         # modifying color family
         if  tmp_color_family != target_color_family:
@@ -242,8 +270,8 @@ def check(clipa, *clipbs):
 
 
 
-@_ensuretype(clip = vs.VideoNode)
-def print(clip,string = ''):
+@autocheck
+def print(clip:vs.VideoNode , string:str = '') -> vs.VideoNode:
 
     '''
     used to show variables directly.
@@ -260,8 +288,8 @@ def print(clip,string = ''):
 
 
 
-@_ensuretype(clip = vs.VideoNode ,plane = int)
-def getplane(clip, plane):
+@autocheck
+def getplane(clip:vs.VideoNode , plane:int = 0) -> vs.VideoNode:
 
     '''
     fast std.ShufflePlanes()
@@ -274,5 +302,7 @@ def getplane(clip, plane):
 
 
 
-@_ensuretype(clip = vs.VideoNode ,planes = int)
-def diff(clipa, clipb, amp = 8, planes = None):
+@autocheck
+def diff(clipa:vs.VideoNode , clipb:vs.VideoNode , amp:int = 8, planes:(None,int,list) = None) -> vs.VideoNode:
+    # under construction
+    return clipa
