@@ -12,7 +12,7 @@ from re import search
 ######################################################
 #
 #           nazobase distribution
-#           version 0.1.17
+#           version 0.1.18
 #
 ######################################################
 
@@ -267,12 +267,12 @@ def check(clipa:vs.VideoNode, *clipbs:vs.VideoNode, **kwargs) -> vs.VideoNode:
     # operating
     for num,clip in enumerate(clipbs):
         
-        tmp_color_family = clip.format.color_family
-        if target_color_family not in options or tmp_color_family not in options:
+        tmp_format = clip.format
+        if target_color_family not in options or tmp_format.color_family not in options:
             raise TypeError('This script can only handle format with YUV/RGB/GRAY')
         
-        # modifying color family
-        if  tmp_color_family != target_color_family:
+        # modifying color family if different / or different css in YUV 
+        if  (tmp_format.color_family != target_color_family) or (target_color_family is vs.YUV and clipa.format.name[:6] != tmp_format.name[:6]):
             clipbs[num] = options[target_color_family](clip)
 
         # modifying bit depth
@@ -299,7 +299,7 @@ def check(clipa:vs.VideoNode, *clipbs:vs.VideoNode, **kwargs) -> vs.VideoNode:
 
 
 @autocheck
-def diff(clipa:vs.VideoNode , clipb:vs.VideoNode , amp:int = 10, planes:(None,0,1,2,list) = None, binarize:bool = False, maskedmerge:bool = False) -> vs.VideoNode:
+def diff(clipa:vs.VideoNode , clipb:vs.VideoNode , amp:int = 10, planes:(None,0,1,2,list) = None, binarize:bool = False, maskedmerge:bool = False):# -> vs.VideoNode:
 
     '''
 
@@ -327,8 +327,8 @@ def diff(clipa:vs.VideoNode , clipb:vs.VideoNode , amp:int = 10, planes:(None,0,
             will be highlight labeled. 
 
         (bool maskedmerge:)
-            Showing a merged picture of different pixels like using alpha channel.
-            Trun on this if you don't like check(src1,diff(src1,src2)).
+            Showing a merged picture of differences between pixels like using alpha channel.
+            Trun on this if you don't like "check(src1,diff(src1,src2))".
 
     '''
 
@@ -342,7 +342,15 @@ def diff(clipa:vs.VideoNode , clipb:vs.VideoNode , amp:int = 10, planes:(None,0,
         planes = list(range(clipa.format.num_planes))
     elif isinstance(planes,int):
         planes = [planes]
+
+    # shuffle if required
     if len(planes) == 1:
+        # Since vsedit calls bif"resize" of vapoursyth to generate RGB clips and output on your screen, it may cause confuse. Matrix for convert is not specified when you cut-out a single plane from RGB format and named its color family as GRAY, thus may cause runtime fail when you preview.
+        # For further information of color matrix in vapoursynth's data structure , view http://www.vapoursynth.com/doc/functions/resize.html
+        if clipa.format.color_family is vs.RGB:
+            clipa = clipa.std.SetFrameProp(prop="_Matrix", intval = 2)
+            clipb = clipb.std.SetFrameProp(prop="_Matrix", intval = 2)
+
         clipa = clipa.std.ShufflePlanes(planes,vs.GRAY)
         clipb = clipb.std.ShufflePlanes(planes,vs.GRAY)
 
@@ -350,11 +358,24 @@ def diff(clipa:vs.VideoNode , clipb:vs.VideoNode , amp:int = 10, planes:(None,0,
     expr = f"x y - abs {amp} *"
     res = core.std.Expr([clipa, clipb], [expr])
     res_b = res.std.Binarize(threshold = 1, planes = planes if len(planes) > 1 else [0])
+
     # create maskmerged clip if required
     if maskedmerge:
-        blankclip = core.std.BlankClip(width = clipa.width, height = clipa.height,  format = vs.YUV420P8, length = clipa.num_frames, fpsnum = clipa.fps_num, fpsden = clipa.fps_den ,color = [250,60,115])
+        iter_ = {x:None for x in list(range(3))}
+        clips = [ [f'clipa.std.ShufflePlanes({x}, vs.GRAY)' for x in {2:iter_}.setdefault(y,[0]*3)]
+                 for y in iter_ ]
+        for plane in iter_:
+            # Instancing when activate
+            iter_[plane] = eval(clips[clipa.format.color_family//int(1e6) - 1][plane]).std.BlankClip(color = list(map( lambda x: x << (clipa.format.bits_per_sample-8), [250,60,115] ))[plane] )
+        blankclip = core.std.ShufflePlanes(list(iter_.values()), [0,0,0] ,vs.YUV)
+
+        # convert to rgb if needed
+        if clipa.format.color_family is vs.RGB:
+            blankclip = ToRGB(blankclip,full=True)
+        
         blankclip , clipa = partial(check ,mode = 1)(blankclip, clipa)
-        return core.std.MaskedMerge(clipa, blankclip, Depth(res_b.std.Expr('x 2 /'),8),  [0,1,2], True)
+        return core.std.MaskedMerge(clipa, blankclip, res_b,  [0,1,2], True)
+
     elif binarize:
         return res_b
     
