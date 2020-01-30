@@ -284,7 +284,8 @@ def check(clipa:vs.VideoNode, *clipbs:vs.VideoNode, **kwargs) -> vs.VideoNode:
             clipbs[num] = core.resize.Spline16(clipbs[num],clipa.width,clipa.height)
 
         # post processing
-        clipbs[num] = core.std.AssumeFPS(clipbs[num], clipa)
+        if clipa.fps_num != 0 and clipa.fps_den != 0:
+            clipbs[num] = core.std.AssumeFPS(clipbs[num], clipa)
         if not mode_1_flag:
             clipbs[num] = core.text.Text(clipbs[num], node_stack[num+1])
     
@@ -479,7 +480,7 @@ def print(clip:vs.VideoNode , string = '') -> vs.VideoNode:
 
 
 @autocheck
-def getplane(clip:vs.VideoNode , plane:int = 0) -> vs.VideoNode:
+def gp(clip:vs.VideoNode , plane:int = 0) -> vs.VideoNode:
 
     '''
     fast std.ShufflePlanes()
