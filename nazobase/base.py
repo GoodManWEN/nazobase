@@ -743,6 +743,24 @@ class naobu:
             options options:
                 Accept a nazobase.options object which helps you 
                 adjust most attributes of the whole workflow.
+
+                Usage:
+                use `opt = options()` to generate a panel object.
+                use `opt.update()` to modify settings.
+                use `opt.params()` to list review all parameters.
+
+                Example:
+                import vapousrynth as vs
+                from nazobase import *
+
+                opt = options(Line_darken = True) # generate a panel object
+                opt.update(Line_darken = False) # modify settings.
+
+                src16 = dataloader(idx)
+                res = naobu.classic(src16 , opt)
+                res = res.text.Text(opt.params()) # view all params.
+                res.set_output()
+
             
                 Attributes list:
           
