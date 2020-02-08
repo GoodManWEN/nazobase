@@ -20,11 +20,6 @@ jobs:
     - name: Post Modify.
       run: |
         cp ./nazobase/base.py ./testbase.py
-        sed 's/import vapoursynth as vs/vs = 1/' testbase.py
-        sed 's/from .mvsfunc1610 import Depth,ToYUV,ToRGB/Depth,ToYUV,ToRGB=1,1,1/' testbase.py
-        sed 's/from .nazolib import main as naobu_c/naobu_c=1/' testbase.py
-        sed 's/from .MediaInfoVS import get_info/get_info=1/' testbase.py
-        sed 's/from .options import options/options=1/' testbase.py
         python PostModify.py
     - name: Build and publish
       env:
