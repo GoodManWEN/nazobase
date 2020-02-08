@@ -28,6 +28,7 @@ with open('testbase.py','r',encoding='utf-8') as f:
     cont = f.readlines() 
 cont.insert(0,'panaceafunc = lambda *args,**kwargs:None\n')
 
+out_cont = []
 for i , line in enumerate(cont):
     if line[:4] != ' '*4 and (re.search('from(.*?)import(.*?)',line) or re.search('import(.*?)as(.*?)',line)):
         if '.' in line:
@@ -36,16 +37,18 @@ for i , line in enumerate(cont):
             else:
                 libs = line[line.index('import ')+7:].split(',')
             libs = list(map(lambda x:x.strip(), libs))
-            cont.pop(i)
-            cont.insert(i,f"{','.join(libs)} = {','.join(['panaceafunc'] * len(libs))}\n")
+            out_cont.append(f"{','.join(libs)} = {','.join(['panaceafunc'] * len(libs))}\n")
         elif 'vapoursynth' in line:
-            cont.pop(i)
-            cont.insert(i+1,'vs.VideoNode=panaceafunc\n')
-            cont.insert(i+1,'vs=new()\n')
-            cont.insert(i+1,'class new:pass\n')
-            
+            out_cont.append('class new:pass\n')
+            out_cont.append('vs=new()\n')
+            out_cont.append('vs.VideoNode=panaceafunc\n')
+        else:
+            out_cont.append(line)
+    else:
+        out_cont.append(line)
+
 with open('testbase.py','w',encoding='utf-8') as f:
-    f.writelines(cont)
+    f.writelines(out_cont)
 
 import testbase
 from testbase import *
