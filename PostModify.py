@@ -21,11 +21,14 @@ def fix(file ,replacement):
     with open(file,'w',encoding='utf-8') as f:
         f.write(out)
 
-import nazobase
-from nazobase import *
+import base
+from base import *
 
-with open('./nazobase/base.py','r',encoding='utf-8') as f:
+with open('./base.py','r',encoding='utf-8') as f:
     cont = f.read()
+# Since CI/CD environment can not support vs install 
+# we need to findout other means where we don't need to import package.
+
 var_cont = dir(nazobase)
 func_name_list = list()
 for var in var_cont:
@@ -41,6 +44,10 @@ for i , func in enumerate(func_list):
     doc_whole += '\n'.join(map(lambda x:x[4:] if x[8:16] == '#'*8 else x[2:] , func.__doc__.split('\n')))
     doc_whole += "\n######################################################"
 doc_whole += "\n'''"
+
+func_name_list = list()
+for var in var_cont:
+    reslt = re.search(f'\n(\s*)def {var}',cont)
 
 html = BeautifulSoup(get(url , headers).text ,'lxml')
 descript = html.find('meta' ,{'name':'description'}).get('content')
