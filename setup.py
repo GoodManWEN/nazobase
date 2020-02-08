@@ -1,29 +1,31 @@
-#############################################
-# File Name: setup.py
-# Author: WEN
-# Created Time:  2019-05-04 03:54:00
-#############################################
+from setuptools import setup, find_packages, Distribution
 
-from setuptools import setup
+class BinaryDistribution(Distribution):
+    """Distribution which always forces a binary package with platform name"""
+    def has_ext_modules(foo):
+        return True
+
+
+with open("README.md", "r" ,encoding='utf-8') as fh:
+    long_description = fh.read()
 
 setup(
-    name            ='nazobase',
-    version         ='0.1.17',
-    py_modules      =['nazobase'],
-    author          = 'WEN',
-    license         = "LGPLv3",
-    description     = "NAZOrip's basement",
-    url             = "www.nazorip.site",
-    # install_requires=[
-    #     '',
-    # ],
-    entry_points='''
-        [console_scripts]
-        nazobase=nazobase:nazobase
-    ''',
+    name="nazobase", # Replace with your own username
+    version="{{version_release}}",
+    author="WEN",
+    description="{{short_dscp}}",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url="https://www.nazorip.site",
+    packages=find_packages(),
+    package_data={
+        'nazobase': ['nazolib.cp37-win_amd64.pyd'],
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+        "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-)
+    python_requires='>=3.7',
+    keywords=["vapoursynth", "nazobase", "NAZOrip"]
+)                                                               
