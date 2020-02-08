@@ -2,8 +2,12 @@ from bs4 import BeautifulSoup
 from jinja2 import Template
 from requests import get
 from operator import itemgetter
-import logging ,re
+from shutil import copyfile
+from os import remove
+from inspect import isfunction ,isclass
+import logging ,re 
 
+DEBUG = True
 
 url = 'https://github.com/GoodManWEN/nazobase'
 release = f'{url}/releases/latest'
@@ -23,6 +27,8 @@ def fix(file ,replacement):
 
 # Since CI/CD environment can not support vs install 
 # we need to findout other means where we don't need to import package.
+if DEBUG:
+    copyfile('./nazobase/base.py','testbase.py')
 
 with open('testbase.py','r',encoding='utf-8') as f:
     cont = f.readlines() 
@@ -55,13 +61,16 @@ from testbase import *
 
 with open('testbase.py','r',encoding='utf-8') as f:
     cont = f.read()
+locals_ = locals()
 var_cont = dir(testbase)
 func_name_list = list()
 for var in var_cont:
-    reslt = re.search(f'\n(\s*)def {var}',cont)
-    if reslt and var[0] != '_':
-        func_name_list.append(var)
-func_list = itemgetter(*func_name_list)(locals())
+    if var[0] != '_' and isfunction(locals_[var]):
+        reslt = re.search(f'\n(\s*)def {var}',cont)
+        if reslt:
+            func_name_list.append(var)
+
+func_list = itemgetter(*func_name_list)(locals_)
 logging.info(f"Find functions : {','.join(func_name_list)}")
 func_name = '\n#   '.join(func_name_list)
 doc_whole = "\n'''"
@@ -80,5 +89,12 @@ descript = html.find('meta' ,{'name':'description'}).get('content')
 html = BeautifulSoup(get(release , headers).text ,'lxml')
 version = html.find('div',{'class':'release-header'}).find('a').text
 logging.info(f'Version number : {version} fetched.')
-fix('setup.py' , {'short_dscp':descript ,"version_release":version})
-fix('./nazobase/__init__.py' , {"funcs":func_name,"func_dscp":doc_whole ,"version_release":version})
+if not DEBUG:
+    fix('setup.py' , {'short_dscp':descript ,"version_release":version})
+    fix('./nazobase/__init__.py' , {"funcs":func_name,"func_dscp":doc_whole ,"version_release":version})
+else:
+    print(f"descript = {descript}")
+    print(f"version = {version}")
+    print(f"func_name = {func_name}")
+    print(f"doc_whole = {doc_whole}")
+    remove('testbase.py')

@@ -724,5 +724,96 @@ def wf2x(clip:vs.VideoNode ,noise:int = 0 ,scale:int = 1 ,block_w:int = None ,bl
     return Depth(flt,16)
 
 class naobu:
+    '''
+    Provides you a pare of contradistinctive filter ,
+    one of those is a classical fullchain workflow 
+    of animation processing , the other is a trained 
+    newral network which expected outcome is to achieve 
+    the same goal in unconventional way.
+
+    ######################################################
+    Functinos:
+
+        classic(clip ,options):
+            Attributes:
+            
+            VideoNode clip:
+                Only clips with a format of vs.YUV420P16 accepted.
+
+            options options:
+                Accept a nazobase.options object which helps you 
+                adjust most attributes of the whole workflow.
+            
+                Attributes list:
+          
+                # Degrain parts:
+                d ,a ,s: 
+                    knlmeans-cl parameters controlling radius etc. of degrain.
+                device_type ,device_id:
+                    knlmeans-cl device.
+                hy ,hc ,hy2 ,hc2:
+                    Luma & chroma denoise strength of two specific pre-denoise plane.
+                    Denoise algorithm is also decided by strength params 
+                    between bm3d & nlmeans.
+
+                # F3kdb parts:
+                f3str:
+                    Bias of f3kdb
+
+                # Gaussain USM parts:
+                bsigma ,dgmode ,pdgp:
+                    Unsharp mask strength ,mode and susceptibility of usm mask.
+
+                # Anti-Aliasing parts:
+                aakernel ,cycle:
+                    Algorithm & process cycles of AA.
+                eesigma ,elsigma:
+                    Edge amendment.
+
+                # Deband mod parts:
+                left ,right ,anc_x ,anc_y ,dbsty ,dbstc:
+                    Params of dbmbk mod.
+                range1 , range2 , range3 ,thr , thc , est:
+                    Radius and Limitfilter param of severl amendment.
+                dbamp:
+                    Affects global db strength.
+                chroma:
+                    Choose if these's need to make chorma deband.
+                tp ,Time_domain_p:
+                    If you'd like to switch on time domain deband processing.
+                    This option will cause extremely large memory used.
+
+                # Dering parts:
+                self._dering = { #Dering
+                rbias ,drgamma , drrx , dramp:
+                    Dering mask & process params.
+                Limited_dering:
+                    Choose whether use masks to protect sharpness loss from dering.
+
+                # Line darken parts:
+                Line_Darken:
+                    Switch if to implement line darken.
+                ldamp ,limit ,thrs:
+                    Controls line darken strength. 
+
+                # Line warp parts:
+                Warpline:
+                    Switch if to implement warp line.
+                wthresh ,wblur ,wdepth ,wplane:
+                    AWarpSharp params.
+
+                # Mask parts:
+                mmsigma ,mmh ,mml:
+                    Controls main luma mask.
+                glmgama ,glmest1 ,glmest2:
+                    Controls gammaed luma mask.
+                cmplimitY ,cmplimitC ,cmlowlimit1 ,cmlowlimit2 ,cmlowlimit3, \
+                cmdelta ,cmradius ,cmblursigma:
+                    Controls chroma mask.
+
+        magical(clip):
+            / Under development.
+    
+    '''
 
     classic = naobu_c
