@@ -16,7 +16,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install setuptools wheel twine jinja2 requests beautifulsoup4 lxml
+        pip install setuptools wheel twine jinja2 requests beautifulsoup4 lxml vapoursynth
     - name: Post Modify.
       run: |
         python PostModify.py
