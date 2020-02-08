@@ -38,7 +38,8 @@ for i , line in enumerate(cont):
             libs = list(map(lambda x:x.strip(), libs))
             cont.pop(i)
             cont.insert(i,f"{','.join(libs)} = {','.join(['panaceafunc'] * len(libs))}\n")
-        if 'vapoursynth' in line:
+        elif 'vapoursynth' in line:
+            cont.pop(i)
             cont.insert(i+1,'vs.VideoNode=panaceafunc\n')
             cont.insert(i+1,'vs=new()\n')
             cont.insert(i+1,'class new:pass\n')
