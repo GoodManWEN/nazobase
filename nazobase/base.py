@@ -1,9 +1,10 @@
-try:
-    from .mvsfunc1610 import Depth,ToYUV,ToRGB 
-except:
-    raise ImportError('mvsfunc is required for this script.')
+#try:
+#    from .mvsfunc1610 import Depth,ToYUV,ToRGB 
+#except:
+#    raise ImportError('mvsfunc is required for this script.')
 
 import vapoursynth as vs
+from .mvsfunc1610 import Depth,ToYUV,ToRGB 
 from .MediaInfoVS import get_info
 from .nazolib import main as naobu_c
 from .options import options
