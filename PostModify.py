@@ -21,15 +21,15 @@ def fix(file ,replacement):
     with open(file,'w',encoding='utf-8') as f:
         f.write(out)
 
-import base
-from base import *
+import testbase
+from testbase import *
 
-with open('./base.py','r',encoding='utf-8') as f:
+with open('testbase.py','r',encoding='utf-8') as f:
     cont = f.read()
 # Since CI/CD environment can not support vs install 
 # we need to findout other means where we don't need to import package.
 
-var_cont = dir(nazobase)
+var_cont = dir(testbase)
 func_name_list = list()
 for var in var_cont:
     reslt = re.search(f'\n(\s*)def {var}',cont)
