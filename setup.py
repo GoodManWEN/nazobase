@@ -5,7 +5,6 @@ class BinaryDistribution(Distribution):
     def has_ext_modules(foo):
         return True
 
-
 with open("README.md", "r" ,encoding='utf-8') as fh:
     long_description = fh.read()
 
@@ -23,8 +22,8 @@ setup(
     },
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
+        "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+        "Operating System :: Microsoft :: Windows",
     ],
     python_requires='>=3.7',
     keywords=["vapoursynth", "nazobase", "NAZOrip"]
