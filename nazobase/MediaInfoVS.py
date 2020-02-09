@@ -31,11 +31,3 @@ def get_info(file):
         odict = dict(zip(map(lambda x:f"{track_type}_{x}" , intersect) , map(_convert,itemgetter(*intersect)(dic))))
         opt.update(odict)
     return opt
-
-# a = get_info(r'D:\sorayoriv2\[VCB-Studio] Sora yori mo Tooi Basho [01][Ma10p_1080p][x265_flac].mkv')
-# lsta = []
-# for i,j in a.items():
-#     lsta.append((i,j))
-# lsta.sort(key=lambda x:x[0])
-# for i in lsta:
-#     print(i)
