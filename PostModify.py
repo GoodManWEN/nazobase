@@ -7,7 +7,7 @@ from os import remove
 from inspect import isfunction ,isclass
 import logging ,re 
 
-DEBUG = False
+DEBUG = True
 
 url = 'https://github.com/GoodManWEN/nazobase'
 release = f'{url}/releases/latest'
@@ -89,12 +89,11 @@ descript = html.find('meta' ,{'name':'description'}).get('content')
 html = BeautifulSoup(get(release , headers).text ,'lxml')
 version = html.find('div',{'class':'release-header'}).find('a').text
 logging.info(f'Version number : {version} fetched.')
-if not DEBUG:
-    fix('setup.py' , {'short_dscp':descript ,"version_release":version})
-    fix('./nazobase/__init__.py' , {"funcs":func_name,"func_dscp":doc_whole ,"version_release":version})
-else:
+if DEBUG:
     print(f"descript = {descript}")
     print(f"version = {version}")
     print(f"func_name = {func_name}")
     print(f"doc_whole = {doc_whole}")
     remove('testbase.py')
+fix('setup.py' , {'short_dscp':descript ,"version_release":version})
+fix('./nazobase/__init__.py' , {"funcs":func_name,"func_dscp":doc_whole ,"version_release":version})
