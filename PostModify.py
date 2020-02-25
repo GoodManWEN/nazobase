@@ -7,7 +7,7 @@ from os import remove
 from inspect import isfunction ,isclass
 import logging ,re 
 
-DEBUG = True
+DEBUG = False
 
 url = 'https://github.com/GoodManWEN/nazobase'
 release = f'{url}/releases/latest'
