@@ -20,8 +20,10 @@ setup(
     package_data={
         'nazobase': ['nazolib.cp37-win_amd64.pyd'],
     },
+    install_requires=['pymediainfo'],
     classifiers=[
-        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
+        'Programming Language :: Python :: 3.7',
         "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
         "Operating System :: Microsoft :: Windows",
     ],
