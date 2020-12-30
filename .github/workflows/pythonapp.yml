@@ -1,6 +1,12 @@
 name: Build
 
-on: [push]
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  schedule:
+    - cron:  '0 9 1 * *'  # Runs at 09:00 UTC on the 1st of every month
 
 jobs:
   build:
