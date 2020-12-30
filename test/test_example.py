@@ -2,9 +2,9 @@ import vapoursynth as vs
 from nazobase import *
 
 def test_example():
-    # Since vapoursynth environment & reliables automaticly setup goes extremely difficult ,
-    # hence this repo has no unit test. 
-    assert True
+	# Since vapoursynth environment & reliables automaticly setup goes extremely difficult ,
+	# hence this repo has no unit test. 
+	assert True
 
 def test_check():
 	core = vs.core
