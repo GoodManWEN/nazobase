@@ -22,8 +22,9 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        pip install nazobase 
+        pip install vapoursynth==43
         pip install -r requirements.txt
-        pip install nazobase vapoursynth
     - name: Lint with flake8
       run: |
         pip install flake8
